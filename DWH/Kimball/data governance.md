@@ -1,0 +1,5 @@
+- principled approach to managing data during it's life cycle, from acquisition to disposal
+- everything we do to make sure that the data is secure, usable, private, accurate and available.
+- includes actions and procedures people should take and the tech that supports them
+- can be internal + government enforced + industry standards + ...
+- governs who has access to what kinds of data
