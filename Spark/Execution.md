@@ -1,0 +1,26 @@
+- the code that we submit passes through the catalyst optimizer
+	- which decides how the code should be executed and lays out a plan
+- catalyst optimizer(CO) is a collection of rules that attempt to optimize the RLP by performing modifications on the LP
+	- ex: predicate push down
+- we can programmatically extend Catalyst to include more rules
+- the first phase of execution is meant to convert the user code to a logical plan
+- the logical plan represents a set of abstract transformations without any reference of executors or drivers or any low level details
+	- at the end of this first phase user's code will be converted to the most optimal logical plan
+- as the first step in the journey, driver generates an unresolved logical plan
+	- after performing syntax checks
+	- this plan is called an unresolved logical plan because the tables, columns and functions referenced in the code are not verified whether they are valid
+- Once the ULP is generated, the next step is to analyze the referenced tables, columns and functions.
+	- this analysis involves validation of these entities with Spark's own Catalog
+		- which is the metadata store 
+	- this process is performed by the analyzer
+- the ULP might get rejected if any of the entities referenced are not valid and the job is failed
+- if the analyzer is able to verify, the result is passed through the CO
+- The CO results in OLP
+- after successfully creating an OLP, Spark then begins the physical planning process
+- by generating a physical plan, spark specifies how the LP will execute on the cluster
+- in that process of generating Spark generates multiple physical execution strategies and comparing them through a cost model
+- each physical plan that is generated is assigned a cost and the one with the lowest cost is selected for execution
+- physical planning results in a series of RDDs and transformations
+- As  transformations in DF,DS and SQL are turned into RDD transformations, from high level to low-level, Spark is popularly known as a compiler
+- upon selecting a physical plan, Spark runs all of this code over RDDs
+	- Spark performs further optimizations at runtime

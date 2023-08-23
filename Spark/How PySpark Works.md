@@ -1,0 +1,28 @@
+![[Pasted image 20230628164118.png]]
+- PySpark API is a very thin layer on top of the Java API for Spark
+	- Java API is only a wrapper around the core Scala functionality
+- when we use the PySpark API, data processing is done by python
+	- data persistence and transfer are still handled by the Spark JVM
+- things like scheduling(both DAG and tasks), broadcast, n/wing, fault-recovery etc. are all reused from the core Scala Spark Package
+- Java and Python processes need a means to talk to each other
+- in python driver program, SparkContext  launches a JVM, uses Py4J to create a JavaSparkContext
+	- Py4J: enables python programs running in a Python interpreter to dynamically access Java objects in a JVM
+	- methods are called as if the Java objects resided in the py interpreter and Java collections can be accessed through standard Py collection methods
+	- also enables Java programs to call back python objects
+- Py4J is only used on the driver for local comms b/w the Py and Java SparkContext objects
+- large data transfers are performed through a diff mech->?
+- access to the JVM and the objects in JVM are provided by two objects within py4j
+	- GatewayServer: allows python programs to communicate with the JVM through a local n/w socket
+		- takes in host details
+		- should be created in both Java and py
+		- so using this can we connect to a JVM in another system?
+	- entry point: any object that acts as the entry point to other objects of interest
+	- https://www.py4j.org/getting_started.html
+- python interacts with JVM using something called reflection
+	- reflection: ability of a process to examine, introspect and modify its own structure and behavior
+- before we set up the py side of the gateway, our JVM must be ready
+	- py4j does not launch the JVM for us
+		- contradiction
+- py spark implementation of gateway launches the JVM
+- SparkContext is part of the JAVA API for spark and a way for the JVM to access the core Scala packages
+	- since py API sits on top of the Java API, it is py's entry point into functionality written in scala

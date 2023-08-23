@@ -1,0 +1,63 @@
+- foundational type of the structured APIs
+- Dataframes = Datasets\[Row\]
+- JVM language feature
+	- works only with Scala and Java
+- DS are domain-specific typed objects that be operated on in parallel using functional programming or operations that we are familiar from the DF API
+- we can define the object that each row in our dataset will consist of
+	- in case of Scala, this will be a case class object
+		- using which we define schema
+	- in Java, we will define Java Beam
+- aka typed set of APIs
+- Spark types such as StringType, StructType map to types available in each of Spark's supported langs like String, Integer
+- to efficiently support doman-specific objects, a special concept called an Encoder is required
+- the encoder maps the domain-specific type T to Spark's internal type system
+- encoder directs Spark to generate code at runtime to serialize the dataset schema into binary structure
+- when we use dataframes, this binary structure will be a Row
+- Spark will allow us to manipulate this DSO(in place of row) in a distributed manner
+- When we use the dataset API
+	- for every row(DSO) it touches, Spark converts the Spark row format to the object we specified
+		- this conversion slows down our ops but can provide more flexibility
+		- not expensive as when using py UDFs
+- one disadvantage of using DS is, it requires some planning
+	- as we have to know all the individual column names and types for the rows we are reading
+	- in DFs, we can optionally let spark infer the schema
+	- Dataset API requires that we define our data types ahead of time
+		- the defined schema, using case class or JavaBean class should match our schema 
+## Converting DF to datasets
+- we can convert df to ds
+- for that we have first prepare a case class or JavaBean class
+- we can use the `.as[SomeCaseClass]` notation on the dataframe object
+- the above statement instructs Spark to use encoders to serialize/deserialize objects from Spark's internal memory rep to JVM object, SomeCaseClass in this case
+## When to use DS
+- the ops cannot be expressed using DF manipulations
+- need for type safety and we are willing to accept the cost of performance
+- some operations cannot be expressd using the structured APIs
+- we might have a large set of BL that we would like to encode in a specific fn instead of in SQL
+- type safety does not protect us from malformed data but can allow us to more elegantly handle and organize it
+- another scenario where we might want to use DS is when we would like to reuse a variety of transformations of entire rows b/w single-node wls and Spark wls
+- additionally when we collect our DFs to local disk, they will be of the correct class and type
+	- making further manipulation easier
+- popular use case: use DF and DS in tandem
+	- manually trading off b/w performance and type safety
+	- ex: collecting data to the driver and manipulate it by single-node libs
+		- or per-row parsing b4 performing filtering and further manipulation in Spark SQL
+- actions like collect, take and count apply to datasets as well
+- transformations are the same as those on DF
+- datasets allow us to specify more complex and strongly typed transformations than we could perform on DataFrames alone, because we manipulate JVM types
+
+## Project Tungsten
+- name of the project that aims to improve Spark's execution eng in many ways
+	- focusing on improving the efficiency of memory and CPU for spark app
+	- pushing performance closer to the limits of modern h/w
+- initiatives:
+	- memory management and binary processing
+		- instead of relying on JVM object model and garbage collection
+	- Code generation: using code generation to exploit modern compilers and CPUs
+## Dataset Encoders
+- convert data in off-heap mem from Spark's internal Tungsten format to JVM java objects
+- tungsten format to JAVA objs  = Serialize
+- Java objs to tungsten format = deserialize
+- `Encoder[T]` will convert from Spark's internal Tungsten format to `Dataset[T]`
+- Spark has built-in support for automatically generating encoders for primitive types
+	- ex: string, Scala Case classes, JavaBeans
+- Compared to Java and Kryo ser-deser, Spark encoders are significantly faster
