@@ -1,0 +1,16 @@
+- goal of normalization is to reduce data redundancy 
+- structure tables
+- involves assigning attributes to tables based on concept of determination([[the relational database model]])
+- normalization works through a series of stages called normal forms
+	- 1NF
+	- 2NF
+	- 3NF
+- from structural point of view 3NF>2NF>1NF
+- mostly 3NF is as high as we need to go 
+- highest level of normalization is not always the most desired
+- higher the normal form, more the requirement for relational joins as a response to user queries
+- best design is one that considers user's fast performance demand
+- there will be needs to denormalize some parts of the database to meet the user performance needs
+- **Denormalization** produces a lower form of normal form
+- Meaning this increase data redundance while increasing the query performance by reducing the required relational joins
+- normalization cares about relations
